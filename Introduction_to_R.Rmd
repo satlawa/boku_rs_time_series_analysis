@@ -1,0 +1,1112 @@
+---
+title: "857.002 Remote sensing time series analysis" 
+subtitle: "Introduction to R"
+output:
+  html_notebook:
+    theme: readable
+    toc: yes
+    toc_float: true
+    number_sections: true
+    css: "css/styles.css"
+---
+
+<affil>University of Natural Resources and Life Sciences (BOKU), Department of Landscape, Spatial and Infrastructure Sciences, Institute of Geomatics, Anja Klisch (anja.klisch@boku.ac.at)</affil>  
+
+`r format(Sys.time(), '%d %B %Y')`  
+
+***
+
+This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. You can open it in a browser (html file) or in RStudio (File -> Open File). RStudio will extract an Rmd file (alongside the html file) and open it in a new tab.
+
+In Rstudio, when you execute code within the notebook, the results appear beneath the code and the variables will be created in the environment. Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Ctrl+Shift+Enter*. 
+```{r}
+print("Hello world!")
+```
+
+***
+
+# Getting started with R and RStudio
+
+__This is R.__
+
+* a language and environment for statistical computing and graphics
+* a free software under the terms of the GNU General Public License in source code form
+* a high level programming language (high abstraction level, human readable)
+* a scripting language (no need to compile code, changes can be made on the fly)
+* available for many platforms: UNIX platforms and similar systems (including FreeBSD and Linux), Windows and MacOS
+
+__Installation of R.__
+
+* The R core software is available on the Comprehensive R Archive Network (CRAN): http://cran.r-project.org/
+* Installation includes:
+    + for Windows: a standard Windows GUI executable and provides an R console in its own window
+    + for Linux/Unix: R is executed in the command line terminal
+    + a core set of packages
+    
+__Packages in R.__
+
+* Packages are collections of functions, data sets and compiled code developed by the community [(Álvarez 2017)](https://www.datacamp.com/community/tutorials/r-packages-guide).
+* Packages can be installed using the command, e.g. `install.packages("raster")`
+* Additional packages are available on repositoires, e.g. the official repository CRAN.
+* R-Forge provides further packages, e.g. many unpublished beta packages and development versions of CRAN packages.
+* [GitHub](https://github.com/) is one of the most popular repositories for open source projects in general and it also contains many  R projects.
+* `library("raster")` is the command used to load a package, and it refers to the place where the package is contained, e.g. folder on your computer.
+* `.libPaths()` lists the library location on your computer.
+* `library()` lists all installed packages.
+* `search()` lists the currently loaded packages.
+
+__Getting help for R__ [(Gillespie & Lovelace 2017)](https://csgillespie.github.io/efficientR/learning.html).
+
+* R's internal help:
+    + search for instances of a keyword in the documentation and function names, e.g. `??raster`
+    + print any R objects whose name matches a given text string, e.g. `apropos("raster")`
+    + get help on a function, e.g. `?plot`
+    + search for vignettes (are detailed documentations with explanation how the package works), e.g. `browseVignettes(package = "raster")`
+* official R Manuals: http://cran.r-project.org/manuals.html
+* R FAQs: http://cran.r-project.org/faqs.html
+* Quick-R: http://www.statmethods.net/
+* Number one place on the internet for getting help on programming is [Stackoverflow](https://stackoverflow.com/). 
+
+__This is RStudio__ (Gillespie & Lovelace 2017).
+
+* an open-source integrated develoment environment (IDE)
+* flexible window pane layouts to optimise use of screen space and enable fast interactive visual feed-back
+* intelligent autocompletion of function names, packages and R objects
+* a wide range of keyboard shortcuts
+* visual display of objects, including a searchable data display table
+* real-time code checking, debugging and error detection
+* menus to install and update packages
+* project management and integration with version control
+* quick display of function source code and help documents
+* available from https://www.rstudio.com/
+
+If you are not familiar with RStudio, we recommend watching this video (ca. 5 min): [short introduction to RStudio](https://www.youtube.com/watch?v=jPk6-3prknk)
+
+***
+
+# First steps in R 
+
+R can be used interactively in the console. The default prompt is `>` and it expects input commands. If a command is not complete, R will give the prompt `+` by default.
+
+__R commands:__
+
+* are case sensitive, e.g. `a` and `A` would refer to different variables
+* are separated either by a semi-colon (`;`), or by a newline
+* are grouped together into one compound expression by braces: `{` and `}`.
+* can be  stored in an external file, e.g. `script.R`
+* to recall and scroll previous commands use the vertical arrow keys on the keyboard
+
+Some examples for basic syntax in R.
+
+```{r}
+a <- 1
+a
+```
+First line: 
+
+* `a` is the name of an object
+* one is its value and
+* `<-` is the assignment operator, but `=` can be used too
+
+Second line:
+
+* prints the value of `a`
+
+```{r}
+b <- 1+1
+a+b
+```
+First line: 
+
+* uses the arithmetic operator `+` for calculating the sum of two values and assigns the result to an object `b` 
+
+Second line:
+
+* calculates the sum of two variables (objects) and prints the result
+
+__R uses common special characters and functions:__
+
+* arithmetic operators: `+`, `-`, `*`, `/`, `^`, `%%`, `%/%`, ...
+* trigonometric functions: `sin`, `cos`, `tan`, `asin`, `acos`, ...
+* logical operators: `<`, `<=`, `>`, `>=`, `==`, `!=`, `!`, `|`, `&`, ...
+* `NA`: not available, missing value, e.g. operations can result in `NA`
+* `NaN`: not a number, e.g. produced by numerical computation `0/0`, `Inf`, `-Inf`
+* `#` to add comments to your code
+
+***
+
+# Types of structures 
+
+The entities that R creates and manipulates are known as objects. Individual data values have a data type that describes what sort of value it is.
+R defines basic data types: 
+
+* character: `a`, `cde`
+* numeric: `3`, `3.125`
+* integer: `2L` (the L tells R to store this as an integer) 
+* logical: `TRUE`, `FALSE`
+* complex: `1+5i` (complex numbers with real and imaginary parts) 
+
+R operates on data structures. Base R provides different types of structures to "express" your data that are introduced in this section. Specific structures needed in the course, e.g. for spatial data will be discussed at a later stage.
+
+![](images/objecttypes.png)
+
+## Vectors    
+
+A vector (or atomic vector) is a one dimensional object with a length between 0 and n. All elements in a vector have the same type (numeric, character, logical, factor, ...).
+
+__How to create numeric vectors.__
+
+```{r}
+a <- 1
+b <- 1:4                                  # sequence of numbers from 1 to 4
+c <- c(6,3,8,NA)                          # concatenating individual numbers
+vec <- vector(mode="numeric",length=10)   # create numeric vector of length 10
+```
+
+__How to create character vectors.__
+
+```{r}
+d <- c("a","b","c")                       # concatenating individual characters
+e <- c("a","b",1)                         # concatenating characters and a number results in a character vector
+d;e
+vec <- vector(mode="character",length=10) # create charcter vector of length 10
+```
+
+Vectors have two properties:
+
+* type, e.g. `typeof(d)`
+* length, e.g. `length(d)`
+
+__How to access vector elements - indexing.__
+
+```{r}
+c[1:2] # get the first 2 elements
+c[-1] # exclude first element
+c[c(1,3)] # get the 1st and the 3rd element
+c[!is.na(c)] # get all values except missing values
+(c+1)[(!is.na(c)) & c>3] -> f # gets values that are non-missing and larger than 3, adds 1 and assigns to the object f
+f
+```
+
+__Important vector related functions include:__
+
+* `cbind()`: combine objects by columns, e.g. `cbind(b,c)`
+* `rbind()`: combine objects by rows, e.g. `rbind(b,c)`
+* `rep()`: replicate elements of vectors, e.g. `rep(a,5)` 
+* `seq()`: generate regular sequences, e.g. `seq(from=1, to=20, by=2)`
+* `sort()`: sort ascending or descending, e.g. `sort(c, decreasing=TRUE)` 
+* `order()`: indices of sorted elements, e.g. `order(c, decreasing=TRUE)` 
+* `which()`, `which.min()`, `which.max()`: indices the logical object when it is TRUE, e.g. `which(c<=6)`
+* `any()`: checks whether at least one value remains true of the logical vector, e.g. `any(b>3)`
+* `all()`: checks whether all values remain `TRUE` of the logical vector, e.g. `all(b>3)`
+* `is.na()`: returns `TRUE` for missing data (not available), e.g. `is.na(c)`
+* `is.NaN()`: returns `TRUE` for not a number elements, e.g. `is.NaN(c)`
+* `head()`, `tail()`: first or last parts, e.g. of a vector, matrix, data frame
+* `summary()`: descriptive statistics of object, e.g. min, median, mean, max, ...
+  
+We can think of matrices, arrays, lists and data frames as deviations from a vector in terms of characteristics (e.g. dimensions) and homogeneity (type).
+
+## Matrices
+
+A matrix is a two dimensional object with 0 - n rows and 0 - m columns. All elements in a vector have the same type (numeric, character, factor, ...). Internally in R, a matrix is a vector with header information about the dimensions and organisation of the data. Matrices are column major order, with the first subscript moving fastest (rows) and the last subscript slowest (columns).
+
+__How to create matrices.__
+
+```{r}
+mat <- matrix(1:12, nrow=3, ncol=4) 
+```
+
+In addition to the above vector propties, matrices have the following properties:
+
+* `nrow()`: number of rows
+* `ncol()`: number of columns
+* `dim()`: retrieve dimension of an object
+* `colnames()`, `rownames()`: retrieve or set the cloumn or row names
+
+__How to access matrix elements - indexing.__
+
+```{r}
+mat[1:2, ] # get the first 2 rows
+mat[,1:3] # get the first 3 columns
+mat[-1, ] # exclude the first row
+mat[,c(2,3)] # get the 2nd and the 3rd columns
+mat[1:2,3] # creates a subset resulting in a vector (dimension simplified)
+mat[1:2,3,drop=FALSE] # subsetting, but prevents simplifying, e.g. result will is a matrix 
+```
+
+__Important matrix related functions.__
+
+* `rowSums()`, `rowMeans()`: form row sums / means 
+* `colSums()`, `colMeans()`: form column sums / means 
+* `cbind()`, `rbind()`, `head()`, `tail()`, `summary()`: see vectors
+* `apply()`: applies a function to margins of a matrix, e.g. `apply(mat, 1, mean)` is the same as `rowMeans(mat)`, `apply(mat, 1, sd)`
+
+Operations and functions that are available only for matrices. 
+
+* `t()`: matrix transpose
+* `%*%`: matrix product
+
+## Arrays
+
+Arrays are similar to matrices but they can have more than two dimensions.
+
+__How to create arrays.__
+
+```{r}
+arr <- array(1:12,c(2,3,2)) 
+arr
+```
+
+## Data frames
+
+A data frame is a two dimensional object with 0 - n rows and 0 - m columns. A data frame is more flexible than a matrix as it can contain objects of a different types (numeric, character, date, factor, ...) and less flexible than a list as all objects need to have the same length.
+
+__How to create data frames.__
+
+```{r}
+ndvi <- c(0.42,0.22,0.29,0.47,0.31,0.35)
+county <- c("Baringo","Garissa","Marsabit","Narok","Turkana"," Wajir ")
+mydf <- data.frame(ndvi, county)
+mydf
+```
+
+__How to access data frame elements - indexing.__
+
+```{r}
+mydf$ndvi # index by column name
+mydf[[1]] # index first column as for a list
+mydf[["ndvi"]] # index by column name as for a list
+mydf[,1] # index first column as for a matrix
+mydf[,"ndvi"] # index by column name as for a matrix
+```
+
+__Important data frame related functions.__
+
+* `aggregate()`: aggregate by grouping and applying a function to each column
+* `merge()`: merge 2 data frames by common columns or row names
+* see most of the examples in lists or matrices
+
+## Lists
+
+A list is a flexible collection for objects (vectors, matrices, functions, ...). The objects in a list have no restrictions in terms of similarity as in a matrices or data frames.
+
+__How to create lists.__
+
+```{r}
+mylist1 <- list() # create empty list
+mylist2 <- vector(mode="list",length=10) # create a list of a given length (good for performance when using e.g. loops)
+mylist3 <- list(ndvi=c(0.42,0.22,0.31),	county=c("Baringo", "Garissa", "Turkana"), matrix=mat, fun=mean) # directly assign values
+```
+	
+__How to access list elements - indexing.__
+
+```{r}
+mylist3$ndvi # index by column name
+mylist3[[1]] # index first column 
+mylist3[["ndvi"]] # index by column name
+```
+
+__Important list related functions.__
+
+* `lapply()`: applies a function to a list or a vector and returns a list of the same length as input
+* `sapply()`: is a user-friendly version of lapply by default returning a vector, matrix or array instead of a list
+* `unlist()`: unlist simplifies a list to produce a vector which contains all the atomic components
+
+## Time series
+
+A time series is a numeric vector that represents data which has been sampled at equispaced points in time. The `ts(vector, start=, end=, frequency=)` function will convert a numeric vector into an R time series object where `start` and `end` are the times of the first and last observation and `frequency` is the number of observations per unit time (e.g., 1=annual, 4=quartly, 12=monthly).
+
+__How to create time series.__
+
+```{r}
+# create numeric vector
+ndvi <- c( 0.1,0.09,0.1,0.15,0.23,0.33,0.41,0.39,0.28,0.17,0.11,0.09,0.09,0.09,0.11,0.15,0.24,0.37,0.47,0.43,0.31,0.18,0.11,0.09,0.09,0.09,0.11,0.16,0.26,0.37,0.46,0.45,0.32,0.19,0.11,0.09,0.09)
+ndvits <- ts(ndvi, start=c(2003, 1), frequency=12) # create time series object
+```
+
+__How to access list elements - indexing (see vectors).__
+
+```{r}
+window(ndvits,start=c(2003,6),end=c(2004,2)) # extracts the subset between start and end time (time series can be re-sampled by specifying a frequency)
+```
+
+Examples for time series functions are given below.
+
+```{r}
+tsp(ndvits) # getting attributes like start time, end time and frequency
+time(ndvits) # times at which a time series was sampled
+cycle(ndvits) # gives the positions in the cycle of each observation
+```
+
+Decompose a  time series into season, trend and remainder.
+
+```{r}
+fit <- stl(ndvits, s.window="period")
+plot(fit)
+```
+
+Plotting time series by years using the package "forecast".
+
+```{r}
+# install the package if not available yet
+if (!require("forecast")) install.packages("forecast") 
+forecast::seasonplot(ndvits) # create seasonal plot
+```
+
+## More about objects in general
+
+__Getting information about and dealing with objects in an Rsession:__
+
+* `object.size()`: provides an estimate of the memory that is being used to store an R object
+* `attributes()`: return or set the attribute list of an object
+* `attr()`: get or set specific attributes of an object
+* `ls()`: return a vector of character strings with  the names of the objects in the specified environment
+* `rm()`: remove Objects from a specified environment
+
+__Coercion__ [(Wickham 2014)](http://adv-r.had.co.nz/Data-structures.html):
+
+* Coercion describes the changing of the type of an R object.
+* All elements of an atomic vector must be the same type. When you attempt to combine different types they will be coerced to the most flexible type.
+* Types from least to most flexible are: logical, integer, double, and character. 
+* Coercion often happens automatically, e.g. mathematical functions (`+`, `log`, `abs`, etc.) to  double or integer;  logical operations (`&`, `|`, `any`, etc) to logical
+* You can explicitely coerce with `as.character()`, `as.double()`, `as.integer()`, `as.logical()` or `as.matrix()`.
+
+__Vector recycling__
+
+When R applies operations on two vectors that require the same length, it automatically replicates the smaller vector. If the shorter vector has to be truncated, a warning is issued. 
+
+Vector with vector.
+
+```{r}
+c(4,5,7) - c(-1,0,2,4,5) # is the same: c(4,5,7,4,5) - c(-1,0,2,4,5)
+```
+
+Vector with matrix.
+
+```{r}
+c(4,5,7) + matrix(1,nrow=2,ncol=4)
+```
+
+
+## Exercises 
+
+*Many years ago, a former colleague of you carried out a field campaign. This colleague collected reflectance measurements with a field spectrometer at a few test sites in your study area. These reflectance measurements are now needed to evaluate an old Landsat scene. The results of the campaign are only available as analogue record (below table).*
+
+| ID | Site name | Land cover / land use | RED | NIR | Date |
+|:--:|:----------|:---------------------|:---:|:---:|:----:|
+1 | Field200/2 | Maize | 0.20  | 0.28 | 10.4.2005
+2 | Field201 | Wheat | 0.05 | 0.65 | 10.4.2005
+3 | Field200/1 | Maize | 0.25 | 0.29 | 10.4.2005
+4 | Site1 | Grassland | 0.14 | 0.22 | 10.4.2005
+5 | Site2b | Vineyard | 0.16 | 0.35 | 10.4.2005
+6 | Site3 | Shrubland | 0.18 | 0.27 | 11.7.2004
+7 | Field201 | Maize | - | 0.60 | 11.7.2004
+8 | Field202 | Wheat | 0.04 | 0.62 | 11.7.2004
+9 | Field203 | Bare soil | 0.20 | 0.31 | 11.7.2004
+10 | Field204 | Bare soil | 0.18 | 0.29 | 10.4.2005
+
+*Create a vector object for each column of the table using the below commands:*
+
+```{r, eval=FALSE}
+id <- 1:10
+site <- c("Field200/2","Field201","Field200/1","Site1","Site2b","Site3","Field201","Field202","Field203","Field204")
+lc <- c("Maize","Wheat","Maize","Grassland","Vineyard","Shrubland","Maize","Wheat","Bare soil","Bare soil")
+red <- c(0.2,0.05,0.25,0.14,0.16,0.18,NA,0.04,0.2,0.18)
+nir <- c(0.28,0.65,0.29,0.22,0.35,0.27,0.6,0.62,0.31,0.29)
+date <- c(rep("2005-04-10",times=5),rep("2004-07-11",times=4),"2005-04-10")
+```
+
+*Tasks vectors:*
+
+* Calculate the NDVI for all test sites
+* Calculate the average RED reflectance for all test sites excluding `NA` values from computation
+* List all site names except the 1st, the 3rd and the 7th 
+* List the last RED reflectance
+* Sort the land cover alphabetically 
+* List the land cover, RED and NIR reflectances ordered by land cover
+* List all site names for land cover maize
+
+*A subset of the old Landsat scene is given in the below images. The data cover red and near-infrared spectral bands containing reflectance values.*
+
+![](images/matrices_red_nir.png)
+
+\ 
+
+*Create vector objects for each of the bands using the below commands:*
+
+```{r, eval=FALSE}
+vecRED <-c(0.21,0.21,0.21,0.20,0.18,0.14,0.11,0.11,0.12,0.21,0.21,0.19,0.18,0.15,0.12,0.12,0.12,0.12,0.21,0.20,0.18,0.14,0.13,0.12,0.12,0.12,0.12,0.18,0.17,0.15,0.12,0.13,0.12,0.12,0.12,0.11,0.11,0.12,0.13,0.12,0.12,0.12,0.12,0.11,0.11,0.09,0.11,0.12,0.12,0.12,0.12,0.12,0.11,0.10,0.11,0.12,0.12,0.12,0.12,0.13,0.12,0.11,0.07,0.12,0.12,0.11,0.11,0.12,0.12,0.12,0.08,0.04,0.11,0.11,0.11,0.12,0.12,0.10,0.07,0.04,0.04,0.11,0.11,0.11,0.11,0.11,0.06,0.04,0.04,0.04,0.11,0.11,0.11,0.11,0.07,0.04,0.04,0.04,0.04,0.11,0.11,0.10,0.07,0.04,0.03,0.04,0.03,0.04,0.11,0.10,0.06,0.03,0.03,0.03,0.03,0.04,0.04,0.10,0.06,0.04,0.03,0.03,0.03,0.04,0.03,0.03)
+vecNIR <- c(0.30,0.30,0.30,0.29,0.29,0.27,0.21,0.18,0.18,0.30,0.30,0.29,0.28,0.27,0.21,0.18,0.18,0.18,0.30,0.29,0.28,0.26,0.23,0.18,0.18,0.18,0.18,0.30,0.29,0.26,0.22,0.19,0.18,0.18,0.18,0.18,0.30,0.27,0.22,0.19,0.18,0.18,0.18,0.18,0.18,0.25,0.22,0.19,0.18,0.18,0.19,0.18,0.18,0.23,0.21,0.19,0.18,0.18,0.18,0.20,0.19,0.22,0.43,0.18,0.18,0.17,0.18,0.18,0.19,0.21,0.41,0.58,0.17,0.17,0.17,0.18,0.17,0.22,0.44,0.59,0.61,0.17,0.18,0.18,0.18,0.23,0.45,0.60,0.61,0.62,0.17,0.17,0.17,0.22,0.43,0.59,0.61,0.63,0.62,0.18,0.17,0.20,0.42,0.59,0.61,0.62,0.62,0.58,0.18,0.22,0.45,0.59,0.61,0.62,0.62,0.59,0.57,0.22,0.45,0.61,0.61,0.62,0.62,0.58,0.57,0.58)
+```
+
+\ 
+
+*Tasks matrices / arrays: *
+
+* Create and populate matrix objects (e.g. `matRED` and `matNIR`) for both bands (`nrows=9`,`ncols=14`)
+* List the NIR reflectances of the last column
+* Assign `NA` to the RED reflectance of the 12th and 13th element in the 9th row
+* Calculate NDVI for all "pixels" and assign the result to a new matrix object (e.g. `matNDVI`)
+* Check the dimensions of the NDVI matrix
+* Calculate the mean NDVI for each row
+* List NDVI values larger than 0.4
+* Count NDVI values larger than 0.4
+* Create an 3D array containing the RED and NIR bands as well as NDVI
+
+*Tasks data frames:*
+
+* Create a data frame containing the test site data
+* Add a column to the data frame containing NDVI for all test sites
+* List the RED reflectances of all test sites
+* Calculate the average of the RED and NIR reflectances for all test sites
+* Aggregate RED, NIR and NDVI values according to land cover using the median
+* List the land cover, RED and NIR reflectances ordered by land cover
+
+*Tasks lists:*
+
+* Create a list containing both the test site data, the landsat scene and a function for calculating NDVI (see section 6.3 for how to define a function)
+* List the RED reflectances of all test sites
+* Add a vector containing NDVI for all test sites
+* Add a matrix containing NDVI for the Landsat scene
+* Calculate the mean of the NIR reflectances for all test sites grouped by land cover
+
+*A monthly NDVI time series for one single pixel was derived from Landsat 5 and 7 @30 m spatial resolution starting with March 2003.*
+
+![](images/time_series.png)
+
+\ 
+
+*Create a vector object using the below command:*
+
+```{r, eval=FALSE}
+ndvi <- c(0.10,0.09,0.10,0.15,0.23,0.33,0.41,0.39,0.28,0.17,0.11,0.09,0.09,0.09,0.11,0.15,0.24,0.37,0.47,0.43,0.31,0.18,0.11,0.09,0.09,0.09,0.11,0.16,0.26,0.37,0.46,0.45,0.32,0.19,0.11,0.09,0.09,0.09,0.11,0.17,0.27,0.38,0.45,0.39,0.26,0.16,0.10,0.09,0.09,0.10,0.13,0.19,0.29,0.39,0.44,0.38,0.24,0.13,0.09,0.09,0.10,0.10,0.11,0.14,0.20,0.25,0.26,0.23,0.17,0.12,0.10,0.10,0.10,0.10,0.11,0.13,0.17,0.24,0.31,0.32,0.24,0.15,0.10,0.09,0.09,0.10,0.11,0.16,0.24,0.34,0.43,0.42,0.32,0.19,0.12,0.09,0.09,0.09,0.10,0.15,0.24,0.35,0.45,0.44,0.32,0.18,0.11,0.09,0.09,0.09,0.10,0.14,0.23,0.35,0.46,0.43,0.29,0.16,0.10,0.09)
+```
+
+*Tasks time series:*
+
+* Create a time series object
+* List all NDVI values of the time series object for May
+* Create a new time series object only containing NDVI values of May
+* Plot the entire time series
+
+***
+
+# Getting data into R
+
+## Input and output
+
+R offers a lot of good and simple facilities to load your data into the workspace and to save your data to a file.
+The most important base R functions are:
+
+* `read.table()`, `write.table()`:  read data frames which may have columns of very different classes
+* `read.csv()`, `write.csv()`: similar to `read.table` for comma separated text files
+* `read.csv2()`, `write.csv2()`: similar to read.table for semicolon separated text files
+* `scan()`: read large matrices with many columns
+* `readRDS()`, `saveRDS()`: import and export Rds files (R's native file format for fast and space efficient data storage)
+
+There are several additional packages to read and write data [(Gillespie & Lovelace 2017)](https://csgillespie.github.io/efficientR/input-output.html):
+
+* `import()`, `export()` from the "rio" library:  easy-to-use and computationally efficient functions for importing and exporting tabular data in a range of file formats
+* `read.table()` from the "readr" or "data.table" libraries:  to efficiently import large text files
+
+## Example data
+
+Many packages provide example data sets which are useful for testing functions. If a package has been attached by `library()`, its datasets are automatically included in the search. A prominent example is the  (Fisher's or Anderson's) iris data set. It gives the measurements in centimeters of the variables sepal length and width and petal length and width, respectively, for 50 flowers from each of 3 species of iris. The species are iris setosa, versicolor, and virginica.
+
+![](images/iris.png)
+\ 
+
+To list currently available data from R packages use `data()`. To access data from a particular package, use the package argument, e.g. `data(package="sp")`.
+Unknwon data sets can be explored as follows:
+
+```{r, eval=FALSE}
+data(iris) 	# load the internal 'iris'-dataset
+dim(iris) 	# print dimensions
+class(iris) 	# print class
+head(iris); tail(iris)	# print the first/last 6 rows of your data
+iris[1:3,1:4] 	# manual indexing (first three rows and first four columns)
+colnames(iris) 	# print column names
+iris$Species 	# get column
+summary(iris)	# summary statistics of data
+table(iris$Petal.Width, iris$Species) 	# contingency table of data set
+```
+
+***
+
+# Plotting in R
+
+R is an intelligent plotting environment! It auto-selects plotting types according to the input data. If you are new to the plotting capabilities of R, try to use the default `plot()` function first, maybe you get surprised. 
+
+The generic plot function can be called as given below and opens a plot window. By default it is the monitor device.
+
+```{r, eval=FALSE}
+plot(x, y, ...)   # generic plot function
+```
+
+Generally speaking, data frames are most suited for plotting. The below examples use the same plot function for different variables of the iris data frame.
+
+
+```{r}
+par(mfcol=c(1,2))
+plot(Petal.Length~Species, data=iris) 	    # numerical ~ categorical
+plot(Petal.Length~Petal.Width, data=iris) 	# numerical ~ numerical
+```
+
+This section only introduces base R plotting functionality. There are a number of advanced packages for creating plots such as ggplot2. See https://www.r-graph-gallery.com/ for more examples.
+
+In base R, figures are typically created using a series of high-level and low-level plotting commands. 
+
+## High-level plot functions {.tabset .tabset-pills}
+
+You can think of an R plot as canvas. There is only one canvas active at any given time. High-level plot functions create new canvases. Explore the tabs for the most common plot types. 
+
+### Histogram
+
+```{r fig.width = 6}
+hist(iris$Sepal.Width)
+```
+
+### Barplot
+
+```{r fig.width = 6}
+iris1<-aggregate(. ~ Species, data = iris, mean)
+barplot(iris1$Petal.Width,names.arg=iris1$Species, col=c("red","green","blue"))
+```
+
+### Boxplot
+
+```{r fig.width = 6}
+boxplot(Sepal.Width ~ Species, data = iris, notch = TRUE, col=c("red","green","blue"))
+```
+
+### Conditional plot
+
+```{r}
+coplot(Sepal.Width ~ Sepal.Length | Species, data=iris)
+```
+
+### Pairwise scatterplot matrix
+
+```{r}
+pairs(iris)
+```
+
+### Pie charts
+
+```{r fig.width = 6}
+pie(table(iris$Species), col=c("red","green","blue"))
+```
+
+### Cleveland's dot plot
+
+```{r}
+dotchart(VADeaths, main = "Death Rates in Virginia - 1940")
+```
+
+### Quantile-quantile plot
+
+```{r fig.width = 6}
+qqplot(iris$Sepal.Width, iris$Sepal.Length)
+```
+
+### Draw a curve of a function
+
+```{r fig.width = 6}
+curve((x));curve(x^2+0.2,add=TRUE)
+```
+
+### Images plot
+
+```{r}
+x <- 10*(1:nrow(volcano));y <- 10*(1:ncol(volcano))
+image(x, y, volcano, col = terrain.colors(100))
+```
+
+### Contour plot
+
+```{r}
+contour(x, y, volcano, levels = seq(90, 200, by = 5),col = "peru")
+```
+
+### Perspective plots
+
+```{r}
+persp(x, y, volcano)
+```
+
+## Low-level plot functions
+
+Low-level plot functions place elements on top of existing canvases. Here are some examples:
+
+| Function | Description |
+|:--|:-----------------|
+`points()` | Adds points to figure
+`lines()` | Adds lines to figure
+`text()` | Insert text in the plot region
+`mtext()` | Insert text in the figure and outer margins
+`title()` | Insert figure or outer title
+`legend()` | Insert legend
+`axis()` | Customize axis
+`abline()` | Add horizontal/vertical lines
+`box()` | Draw a box around the current plot
+`polygon()` | Draw a polygon
+`rect()` | Draw rectangle
+`arrows()` | Draw arrows
+
+## Customising plots
+
+Standard graphs are customised (e.g. line styles, symbols, colours) using graphical parameters. The parameters can be specified in two ways:
+
+1. use the `par()` function; this will be in effect for the rest of the session:
+    + `par(optionname=value, optionname=value, ...)` 
+
+2. include the options in high-level plotting functions, e.g.:
+    + `type`: `p`oint, `l`ines, `h`istogramm, `n`o plotting, ...
+    + `main`: overall title
+    + `xlab` / `ylab`: title of x / y axis
+    + `col`: colour(s) of data
+    + `pty` / `pch` / `lwd` / `cex`: symbol types and types for lines and points
+    + `xlim` / `ylim`: control the limits of axes
+  
+See [Quick R](http://www.statmethods.net/advgraphs/parameters.html) for more parameters.  
+
+An R plot consists of 2 margin areas: `mar` for margin and `oma` for outer margin area. The size of the margin areas can be controlled by calling the par function before your plot and giving the corresponding arguments:
+
+```{r, eval=FALSE}
+# left figure
+par(oma=c(3,3,3,3)) # define lines for outer margin: south, west, north, east
+par(mar=c(5,4,4,2) + 0.1) # define lines for margin: south, west, north, east
+
+# right figure
+par(mfrow=c(2,2), mar=c(5.1,4.1,4.1,2.1), oma=c(0,0,0,0)) # define subplots, margin and outer margin
+```
+
+![](images/plot_margins.png)
+
+\  
+
+## Plot devices
+
+By default R plots to the monitor device `x11()`, but the plotting can be diverted to other plot devices.
+Generally you can choose between vector and bitmap (raster) graphic devices.
+Both have their advantages and disadvantages. Vector plots are scalable while raster not or only with a loss of quality.
+
+* `pdf()`: Portable Document Format
+* `postscript()`: PostScript (for LaTex documents)
+* `pictex()`: LaTex/PicTex
+* `bitmap()`: depending on GhostScript a variety of formats
+* `X11()`: Monitor device
+* `png()`: Compressed bitmap
+* `jpeg()`: Compressed bitmap
+* `tiff()`: Lossless bitmap plot
+
+The below example lists the typical sequence of commands that are needed to write a plot to a device except for `X11()`:
+
+```{r, eval=FALSE}
+png("name.png") 	# open device 
+plot(Petal.Length~Sepal.Length, data=iris) 	# numerical ~ numerical  # plot data 
+abline(h=2.5) # add something to plot 
+dev.off() 	# close device
+```
+
+## Exercise customised plot
+
+*Try to create the customised plot displayed below.*
+
+```{r, echo=FALSE}
+par(mfrow=c(2,1))
+colors <- c("darkgreen", "darkorange", "darkblue")
+boxplot(Petal.Length ~ Species, data=iris, horizontal=TRUE,col=colors,
+        ylab="Species", yaxt="n",xlab = "Petal.Length", main="Anderson's Iris data", cex.main=1.7)
+plot(Petal.Width ~ Petal.Length, col=colors[Species], pch=(15:17)[Species], data=iris)
+legend("bottomright", legend=levels(iris$Species), col=colors, pch=15:17,ncol=3,cex=0.7)
+```
+
+*Tips:*
+
+* To create two subplots specify graphic options, e.g. `par(mfrow=...)`
+* Define a vector containg three colour names and use them in both plots, e.g. `colors <- c("darkgreen", "darkorange", "darkblue")`
+* Use R's help on function (e.g. `?legend`) or [Quick R](http://www.statmethods.net/advgraphs/parameters.html) for further plot parameters
+
+***
+
+# Control structures 
+
+Normally commands are executed line by line. But there might be situtations when the sequence of statements and the number of times each is executed can vary. 
+
+## Conditionals {.tabset .tabset-pills} 
+
+Conditionals are used when pieces of code need to be executed depending on one or more conditions. For instance, a quotient is only calculated if the divisor is not equal 0.
+
+Explore the syntax and examples for different types of conditionals. 
+
+### Single condition
+
+```{r}
+#if (conditionTRUE) {  
+#		x <- doThis()  
+#} else {  
+#		x <- doThat()  
+#}  
+
+x <- 7
+if (x > 0) {  
+  print("non-negative")
+} else {
+  print("negative")
+}
+```
+
+### Several condions  
+
+```{r, eval=FALSE}
+#if (conditionOneTRUE) {
+#		x <- doThis1()
+#} else if (conditionTwoTRUE) {
+#		x <- doThis2()
+#} else if (condThreeTRUE) {
+#		x <- doThis3()
+#} else {
+#	  x <- doThat()
+#}
+
+x <- 7
+if (x > 0) {  
+  print("positve")
+} else if (x < 0) {
+  print("negative")
+} else {
+  print("zero")
+}
+```
+
+### Vectorised version
+
+```{r}
+# if condition is TRUE do "this" else do "that"
+# ifelse(condition, this, that)
+
+a <- 1:10
+b <- ifelse (a > 5, a+1,a-1)
+print(b)
+```
+
+## Loops
+
+For loops iterate a specific block of code a number of times. They avoid to repeat code over and over again.
+
+```{r, eval=FALSE}
+for (var in seq)  {
+	doThis()
+}
+```
+
+* `var` is the loop variable
+* `seq` is a sequence, e.g. `1:100`
+* `doThis()` is a statement to be executed
+
+The below example uses a for loop to calculate monthly NDVI values for the time series object `ndvits` of section 3.6. The result is an average NDVI curve as can be seen in the plot.
+
+```{r}
+# create a vector of 12 elements for assigning the monthly mean values
+meanNdvi <- vector("numeric", length(12))
+for (i in (1:12)) { # loop the months
+  
+  # find the month in the time series and calculate the mean
+   meanNdvi[i] <- mean(ndvits[cycle(ndvits)==i], na.rm=TRUE) 
+}
+plot(ts(meanNdvi), ylab="mean NDVI (2003-2005)",xlab="Time in months") # plot the result
+```
+
+\ 
+
+The results of a for loop are usually written to R objects. For performance reasons, it is better to:
+
+* create an output object of the needed size and populate it during loop execution:  
+  e.g. `meanNdvi <- vector("numeric", length(12)); for (i in (1:12)) meanNdvi[i] <- ... `
+* instead of defining an empty object in the beginning and growing it sequentially:  
+  e.g. `meanNdvi <- vector(); for (i in (1:12)) meanNdvi[i] <- ...`
+
+## Functions
+
+A major capability of R is the possibility to write routines (sequences of code). Large parts of R themselves are written in R, e.g. functions `mean()`, `sd()`. Routines that require very high performance are often based on compiled code (C++, FORTRAN, ...). 
+
+User-defined functions allow efficiently reusing code. At the same time they give the possibility to hide "background" code into a simple string (abstraction). Functions should be written and used as much as possible.
+
+Three key steps [](https://nicercode.github.io/guides/functions/):
+
+1. Define the function: `name <- function(arglist) {body}`
+    + `name` is the name of the function (not mandatory!)
+    + `function` marks the beginning of a function definition
+    + `arglist` is a list of arguments inside brackets `()` and separated by a comma, e.g. `(var1,var2,var3=expr)`.
+    + `body` any valid R expression usually grouped by `{}`
+
+2. Load the function into an R session: 
+    + copy/paste into console
+    + selecting the code and hitting the *Run* button or the *Ctrl+R* keys)
+    + functions can be stored in an external R file (e.g. `example.R`) and loaded using the command: `source("example.R")`
+
+3. Use the funtion: `name(arglist)`
+    + arguments can be listed in any order if they are provided with their variable (name): `myFun(x=1:5,y=3:6)` OR `myFun(y=3:6, x=1:5)`
+    + arguments with default values do not need to be specified:  `myFun <- function(x,m=2){x*m}  # myFun(100) is the same as myFun(x=100,m=2)`
+    + default arguments can also be functions of other arguments: `myFun(x=1:5,y=3:6, size=length(x))`
+    + a function returns a single object, usually the result of the last expression or the object defined in `return()` in the function body
+    + a function can contain any unspecified argument if the `(arglist)` contains the special argument `...` (ellipsis) : `myFun(x,...)`
+    + an important practical use of the ellipsis is to pass arguments to other functions inside `myFun`:
+        - Definition: 	`myFun <- function(x,...) {plot(x,...)}`  
+        - Call:		`myFun(1:5, main="Special Plot")`  
+        - -> main is an argument of `plot()`, but it can be specified in `myFun()` using `...`
+
+Example of a user-defined function for calculating the mean of e.g. a vector.
+
+```{r}
+# define the function and run the code 
+myMean <- function(x, na.rm=FALSE) {
+  if (na.rm) { # check
+    x <- x[!is.na(x)] # remove NA from x
+  }
+  s <- sum(x) / length(x) # calculate mean
+  return(s)
+}
+
+# create a vector for testing the function
+x <- c(rnorm(100),NA) # 100 normally distributed values -> mean should be close to 0
+
+# call the function
+myMean(x); myMean(x, na.rm=TRUE) # calculate mean including and excluding NA
+```
+
+## Exercise user-defined function
+
+*Write a user-defined function that calculates vegetation indices for vector or matrix objects:*
+
+* choose three vegetation indices: e.g. NDVI, SAVI, simple ratio  
+  (see https://grass.osgeo.org/grass70/manuals/i.vi.html for equations)
+* the arglist should contain:
+    + an argument for the first band
+    + an argument for the second band
+    + an argument for the name of the vegetation index to be calculated, default should be NDVI
+* the function body should contain:
+    + a check if the size of both bands is the same
+    + the calculation of the vegetation index depending on the third argument
+* test the function with example data, e.g. test site and Landsat scene of section "3.8 Exercises"
+
+***
+
+# Solutions
+
+## Tasks vectors
+
+```{r, eval=FALSE}
+# calculate NDVI for all test sites
+(nir-red)/(nir+red)
+
+# calculate the average RED reflectance for all test sites excluding NA values from computation
+mean(red,na.rm=TRUE) 
+
+# list all site names except the 1st, the 3rd and the 7th
+site[c(-1,-3,-7)]
+
+# list the last RED reflectance
+red[length(red)] 
+
+# sort the land cover alphabetically 
+sort(lc) 
+
+# list the RED and NIR reflectances ordered by land cover
+order(lc) # returns the index of the increasing/decreasing order. So 'sort(lc)' returns the same as 'lc[order(lc)]' 
+cbind(lc[order(lc)],red[order(lc)],nir[order(lc)]) # rbind: combine columns and rows
+
+## list all site names for land cover maize
+site[lc=="Maize"]
+```
+
+## Tasks matrices / arrays
+
+```{r, eval=FALSE}
+# create and populate matrices (e.g. matRED and matNIR) for both bands (nrows=9,ncols=14)
+matRED <- matrix(vecRED,nrow=9,ncol=14)
+matNIR <- matrix(vecNIR,nrow=9,ncol=14)
+
+# list the NIR reflectances of the last column
+matNIR[,ncol(matNIR)]
+
+# assign NA to the RED reflectance of the 12th and 13th element in the 9th row
+matRED[9,12:13] <- NA
+
+# calculate NDVI for all 'pixels' and assign to a matrix 'matNDVI'
+matNDVI <- (matNIR-matRED)/(matNIR+matRED)
+
+# check the dimensions of the NDVI matrix
+nrow(matNDVI) # number of rows
+ncol(matNDVI) # number of columns
+dim(matNDVI) # dimension
+
+# calculate the NDVI mean for each row
+rowMeans(matNDVI, na.rm=TRUE) 
+# this example does the same as 'rowMeans', but is is much slower
+apply(matNDVI, 1, mean, na.rm=TRUE) 
+# 'apply' is very flexible as any meaningful function can be provided 
+# apply(matNDVI, 1, myFun) ...  
+
+# list NDVI values larger than 0.4
+matNDVI[matNDVI>0.4 & !is.na(matNDVI)]
+
+# count NDVI values larger than 0.4
+sum(matNDVI>0.4 & !is.na(matNDVI))
+sum(matNDVI>0.4, na.rm=TRUE)
+
+# create an 3D array containing the RED and NIR bands as well as NDVI
+arr <- array(NA,c(9,14,3))
+arr[,,1:2] <- c(vecRED,vecNIR)
+arr[,,3] <- (arr[,,2]-arr[,,1])/(arr[,,2]+arr[,,1])
+```
+
+## Tasks data frames
+
+```{r, eval=FALSE}
+# create a data frame containing the test site data
+myDf <- data.frame(ID=id,Site=site,LandCover=lc,RED=red,NIR=nir,Date=date)
+
+# add a column to the data frame containing NDVI for all test sites
+myDf$NDVI <- (nir-red)/(nir+red)
+
+# list the RED reflectances of all test sites
+# indexing of data frames is very similar to lists
+myDf$RED
+myDf[[4]]
+myDf[["RED"]]
+#but also to matices
+myDf[,4]
+myDf[,"RED"]
+
+## calculate the average of the RED and NIR reflectances for all test sites
+# functions very similar to lists
+lapply(myDf[,c("RED","NIR")],mean,na.rm=TRUE) # apply function to list or vector and returns list
+sapply(myDf[,c("RED","NIR")],mean,na.rm=TRUE) # simplified apply returns vector or matrix instead of a list
+# but also to matrices
+apply(myDf[,c("RED","NIR")],2,mean,na.rm=TRUE) # apply function to arrays/matrices
+
+# aggregate RED, NIR and NDVI values according to land cover using the median
+aggregate(x=myDf[,c("RED","NIR","NDVI")],by=list(myDf$LandCover),FUN="median",na.rm=TRUE)
+
+# list the land cover, RED and NIR reflectances (or entire data frame) ordered by land cover
+# compare with solution of same task for vectors
+myDf[order(myDf$LandCover),]
+```
+
+## Tasks lists
+
+```{r, eval=FALSE}
+# create a list containing both the test site data, the landsat scene and a function for calculating NDVI
+myList1 <- list(ID=id,Site=site,LandCover=lc,RED=red,NIR=nir,Date=date,Landsat.red=matRED, Landsat.nir=matNIR, 
+                calcNDVI=function(red,nir)(nir-red)/(nir+red))
+# or
+myList2 <- list(Table=myDf,Landsat=arr,calcNDVI=function(red,nir){(nir-red)/(nir+red)})
+
+# list the RED reflectances of all test sites
+myList1$RED
+myList1[[4]]
+myList1[["RED"]]
+# or
+myList2$Table$RED
+myList2[[1]][,"RED"]
+myList2$Table[,4]
+
+# add a vector containing NDVI for all test sites
+myList1$NDVI <- myList1$calcNDVI(myList1$RED,myList1$NIR)
+myList1$NDVI <- (myList1$NIR-myList1$RED)/(myList1$NIR+myList1$RED)
+
+# add a matrix containing NDVI for the landsat scene
+myList1$Landsat.ndvi <- myList1$calcNDVI(myList1$Landsat.red,myList1$Landsat.nir)
+
+# calculate the mean of the NIR reflectances for all test sites grouped by LandCover
+tapply(X=myList1$NIR,INDEX=myList1$LandCover,FUN="mean",na.rm=TRUE) 
+aggregate(x=myList1$NIR,by=myList1["LandCover"],FUN="mean",na.rm=TRUE)
+```
+
+## Tasks time series
+```{r, eval=FALSE}
+# create a time series object
+ndvits <- ts(ndvi, start=c(2003, 3), frequency=12)
+
+# list all NDVI values of the time series object for May
+ndvits[cycle(ndvits)==5] # result is a vector
+
+# create a new time series object only containing NDVI values of May
+ndvits5 <- window(ndvits, start = c(2003,5), frequency=1) # result is a time series
+
+# plot the entire time series
+plot(ndvits)
+```
+
+## Task customised plot
+
+```{r, eval=FALSE}
+# png("plotIris.png")
+par(mfrow=c(2,1))
+colors <- c("darkgreen", "darkorange", "darkblue")
+boxplot(Petal.Length ~ Species, data=iris, horizontal=TRUE,col=colors,
+        ylab="Species", yaxt="n",xlab = "Petal.Length", main="Anderson's Iris data", cex.main=1.7)
+plot(Petal.Width ~ Petal.Length, col=colors[Species], pch=(15:17)[Species], data=iris)
+legend("bottomright", legend=levels(iris$Species), col=colors, pch=15:17,ncol=3,cex=0.7)
+# dev.off()
+```
+
+## Task user-defined function
+
+```{r, eval=FALSE}
+# define the function and run the code
+calcVi <- function(red, nir, viName="NDVI") {
+  if (length(red) == length(nir)) {
+    if (viName == "NDVI") {
+      vi <- (nir-red)/(nir+red)
+    } else if (viName == "RVI") { 
+      vi <- nir/red
+    } else if (viName == "SAVI") { 
+      l <- 0.5
+      vi <- (1+l)*(nir-red)/(nir+red+l)
+    } else {
+      stop("Invalid `viName` value")
+    }
+    # a switch statement could be used here instead of if elseif else
+    # https://www.tutorialspoint.com/r/r_switch_statement.htm
+    
+    return(vi)
+  } else {
+    stop("Bands have different size!")
+  }
+}
+
+# test the function for test site of section "3.8 Exercises"
+red <- c(0.2,0.05,0.25,0.14,0.16,0.18,NA,0.04,0.2,0.18)
+nir <- c(0.28,0.65,0.29,0.22,0.35,0.27,0.6,0.62,0.31,0.29)
+calcVi(red=red, nir=nir, "SAVI")
+calcVi(red=red, nir=nir, "ndVI")
+
+# test the function for Landsat scene of section "3.8 Exercises"
+vecRED <-c(0.21,0.21,0.21,0.20,0.18,0.14,0.11,0.11,0.12,0.21,0.21,0.19,0.18,0.15,0.12,0.12,0.12,0.12,0.21,0.20,0.18,0.14,0.13,0.12,0.12,0.12,0.12,0.18,0.17,0.15,0.12,0.13,0.12,0.12,0.12,0.11,0.11,0.12,0.13,0.12,0.12,0.12,0.12,0.11,0.11,0.09,0.11,0.12,0.12,0.12,0.12,0.12,0.11,0.10,0.11,0.12,0.12,0.12,0.12,0.13,0.12,0.11,0.07,0.12,0.12,0.11,0.11,0.12,0.12,0.12,0.08,0.04,0.11,0.11,0.11,0.12,0.12,0.10,0.07,0.04,0.04,0.11,0.11,0.11,0.11,0.11,0.06,0.04,0.04,0.04,0.11,0.11,0.11,0.11,0.07,0.04,0.04,0.04,0.04,0.11,0.11,0.10,0.07,0.04,0.03,0.04,0.03,0.04,0.11,0.10,0.06,0.03,0.03,0.03,0.03,0.04,0.04,0.10,0.06,0.04,0.03,0.03,0.03,0.04,0.03,0.03)
+vecNIR <- c(0.30,0.30,0.30,0.29,0.29,0.27,0.21,0.18,0.18,0.30,0.30,0.29,0.28,0.27,0.21,0.18,0.18,0.18,0.30,0.29,0.28,0.26,0.23,0.18,0.18,0.18,0.18,0.30,0.29,0.26,0.22,0.19,0.18,0.18,0.18,0.18,0.30,0.27,0.22,0.19,0.18,0.18,0.18,0.18,0.18,0.25,0.22,0.19,0.18,0.18,0.19,0.18,0.18,0.23,0.21,0.19,0.18,0.18,0.18,0.20,0.19,0.22,0.43,0.18,0.18,0.17,0.18,0.18,0.19,0.21,0.41,0.58,0.17,0.17,0.17,0.18,0.17,0.22,0.44,0.59,0.61,0.17,0.18,0.18,0.18,0.23,0.45,0.60,0.61,0.62,0.17,0.17,0.17,0.22,0.43,0.59,0.61,0.63,0.62,0.18,0.17,0.20,0.42,0.59,0.61,0.62,0.62,0.58,0.18,0.22,0.45,0.59,0.61,0.62,0.62,0.59,0.57,0.22,0.45,0.61,0.61,0.62,0.62,0.58,0.57,0.58)
+matRED <- matrix(vecRED,nrow=9,ncol=14)
+matNIR <- matrix(vecNIR,nrow=9,ncol=14)
+calcVi(red=matRED, nir=matNIR, "RVI")
+```
+
+***
+
+# References
+
+* Álvarez (2017): R Packages: A Beginner's Guide:   
+  https://www.datacamp.com/community/tutorials/r-packages-guide
+* Coghlan (2010): A Little Book of R for Time Series:  
+  http://a-little-book-of-r-for-time-series.readthedocs.org/en/latest/
+* DataCamp (2017): Quick R:  
+  http://www.statmethods.net/
+* Gillespie & Lovelace (2017): Efficient R  
+  https://csgillespie.github.io/efficientR/
+* Venables, Smith and R Core Team (2018): An introduction to R:   
+  https://cran.r-project.org/doc/manuals/R-intro.pdf
+* Wickham (2014): Advanced R. Data structures:  
+  http://adv-r.had.co.nz/Data-structures.html
+
+
